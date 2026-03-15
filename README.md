@@ -2,7 +2,7 @@
 
 Let your resume answer interview questions with a local AI.
 
-A local AI system that generates interview answers based on a resume using a Retrieval-Augmented Generation (RAG) pipeline and detects hallucinated responses by comparing generated answers with the original resume context.
+A local AI system that generates interview answers grounded strictly in a resume using a Retrieval-Augmented Generation (RAG) pipeline, and detects hallucinated responses by comparing generated answers with the original resume context.
 
 ---
 
@@ -13,14 +13,12 @@ In an interview setting, this can easily lead to misleading or inaccurate respon
 
 This project explores a simple idea:
 
-**Ground AI answers strictly in a resume.**
+**Let the resume speak for itself.**
 
 The system retrieves relevant sections from a resume and generates answers using a local language model.  
 It then checks whether the generated response deviates from the resume content.
 
 If the answer drifts away from the resume context, the system flags it as a potential hallucination.
-
-The goal is simple:
 
 **Interview answers should remain consistent with the resume.**
 
@@ -28,29 +26,9 @@ The goal is simple:
 
 ## Architecture
 
-The pipeline is intentionally simple and transparent.
+The pipeline is intentionally simple and transparent:
 
-
-Resume (text)
-│
-▼
-Embedding
-│
-▼
-Vector Search (retrieve relevant context)
-│
-▼
-Local LLM generation
-│
-▼
-Answer embedding
-│
-▼
-Similarity check with retrieved context
-│
-▼
-Deviation / hallucination detection
-
+Resume (text) │ ▼ Embedding │ ▼ Vector Search (retrieve relevant context) │ ▼ Local LLM generation │ ▼ Answer embedding │ ▼ Similarity check with retrieved context │ ▼ Deviation / hallucination detection
 
 Key idea:
 
@@ -84,15 +62,12 @@ Running everything locally provides several advantages:
 
 **Input question**
 
-
 What experience do you have with Python?
-
 
 **Retrieved resume context**
 
 
 Developed a local AI system using Python, embeddings, and vector search.
-
 
 **Generated answer**
 
@@ -163,3 +138,4 @@ resume-speaks は、履歴書をもとに面接の質問へ回答するローカ
 ## License
 
 MIT
+
