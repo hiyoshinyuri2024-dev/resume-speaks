@@ -83,15 +83,21 @@ Supported models include:
 ## How it works
 
 1. The system loads `resume.pdf`.
+
 2. The resume is split into overlapping text chunks.
+
 3. Each chunk is converted into embeddings.
+
 4. FAISS builds a vector search index.
+
 5. For each interview question:
 
    * Relevant resume chunks are retrieved
    * The answer is evaluated by the LLM
    * A score and feedback are generated
+
 6. A similarity check detects if the answer deviates from the resume.
+
 7. All interactions are logged.
 
 ---
@@ -100,9 +106,9 @@ Supported models include:
 
 Three evaluation modes are available:
 
-* EASY – allows reasonable extra information
-* NORMAL – evaluates mainly based on the resume
-* HARD – strictly resume-only evaluation
+* **EASY** – allows reasonable extra information
+* **NORMAL** – evaluates mainly based on the resume
+* **HARD** – strictly resume-only evaluation
 
 ---
 
@@ -151,7 +157,7 @@ Each entry contains:
 
 This project experiments with a simple AI reliability layer:
 
-LLM generation + retrieval grounding + deviation detection.
+**LLM generation + retrieval grounding + deviation detection**
 
 Instead of relying purely on the model, the system checks whether answers remain consistent with source data.
 
