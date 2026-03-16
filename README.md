@@ -1,138 +1,162 @@
-# resume-speaks  
-Let your resume answer interview questions with a local AI.
+# AI Interview Engine (Local LLM + RAG)
 
-A local AI system that generates interview answers grounded strictly in a resume using a Retrieval-Augmented Generation (RAG) pipeline, and detects hallucinated responses by comparing generated answers with the original resume context.
+A resume-based AI interview simulator with hallucination detection using local LLMs.
+
+This project evaluates interview answers based on a resume using Retrieval-Augmented Generation (RAG) and detects deviations from the resume using embedding similarity.
 
 ---
 
-## Concept
+## Why this project
 
-Large language models often produce confident answers that are not grounded in real data.  
-In an interview setting, this can easily lead to misleading or inaccurate responses.
+Large Language Models sometimes evaluate answers even when they contradict a candidate's resume.
 
-This project explores a simple idea:
+This project explores a simple reliability layer for AI evaluation:
 
-### **Let the resume speak for itself.**
+* Retrieve relevant resume context using RAG
+* Evaluate answers with a local LLM
+* Detect when answers deviate from the resume
 
-The system retrieves relevant sections from a resume and generates answers using a local language model.  
-It then checks whether the generated response deviates from the resume content.
-
-If the answer drifts away from the resume context, the system flags it as a potential hallucination.
-
-Interview answers should remain consistent with the resume.
+The system runs entirely with local models.
 
 ---
 
 ## Architecture
 
-The pipeline is intentionally simple and transparent:
-
-Resume (text) │ ▼ Embedding │ ▼ Vector Search (retrieve relevant context) │ ▼ Local LLM generation │ ▼ Answer embedding │ ▼ Similarity check with retrieved context │ ▼ Deviation / hallucination detection
-
-
-### Key idea
-
-The generated answer is embedded and compared with the retrieved resume context using cosine similarity.  
-If similarity falls below a threshold, the system marks the response as potentially hallucinated.
+```
+resume.pdf
+     │
+     ▼
+Text Chunking
+     │
+     ▼
+Embedding (SentenceTransformers)
+     │
+     ▼
+FAISS Vector Search
+     │
+     ▼
+Relevant Resume Context
+     │
+     ▼
+LLM Evaluation (via Ollama)
+     │
+     ▼
+Score + Feedback
+     │
+     ▼
+Deviation Detector (embedding similarity)
+     │
+     ▼
+Interview Log (NDJSON)
+```
 
 ---
 
 ## Features
 
-- Local LLM inference  
-- Resume-based RAG  
-- Interview question answering  
-- Hallucination / deviation detection  
-- Simple and transparent architecture  
-- Fully local and privacy‑preserving  
+* Resume-based RAG retrieval
+* Local LLM evaluation
+* Answer scoring (0–5)
+* Deviation detection from resume content
+* Cached FAISS vector index
+* Precomputed question embeddings
+* Structured NDJSON interview logs
 
 ---
 
-## Why Local AI?
+## Tech Stack
 
-Running everything locally provides several advantages:
+* Python
+* FAISS
+* SentenceTransformers
+* Ollama
+* Local LLMs
 
-- Privacy (resumes contain personal information)  
-- No API costs  
-- Full control over the pipeline  
-- Reproducible experiments  
+Supported models include:
 
----
-
-## Example
-
-**Input question**
-
-> What experience do you have with Python?
-
-**Retrieved resume context**
-
-> Developed a local AI system using Python, embeddings, and vector search.
-
-**Generated answer**
-
-> I built a local AI system in Python that retrieves information from my resume and generates grounded responses for interview questions.
-
-The system then checks whether the generated answer remains consistent with the retrieved resume content.
+* Phi-3
+* Mistral
+* Llama3
 
 ---
 
-## Possible Extensions
+## How it works
 
-The concept can be applied beyond resumes:
+1. The system loads `resume.pdf`.
+2. The resume is split into overlapping text chunks.
+3. Each chunk is converted into embeddings.
+4. FAISS builds a vector search index.
+5. For each interview question:
 
-- Legal document Q&A  
-- Medical record assistants  
-- Personal knowledge systems  
-- Verified AI agents  
-- Any scenario where generated answers must remain grounded in source data  
-
----
-
-## Motivation
-
-This project started with a simple question:
-
-### **Can a resume answer interview questions by itself?**
-
-While the implementation is small, the idea touches a broader challenge in AI:
-
-### **How can we keep language models aligned with real data?**
+   * Relevant resume chunks are retrieved
+   * The answer is evaluated by the LLM
+   * A score and feedback are generated
+6. A similarity check detects if the answer deviates from the resume.
+7. All interactions are logged.
 
 ---
 
-## 日本語説明
+## Evaluation Modes
 
-**resume-speaks は、履歴書をもとに面接の質問へ回答するローカルAIシステムの実験的プロジェクトです。**
+Three evaluation modes are available:
 
-大規模言語モデルは、ときにもっともらしい回答を生成しますが、  
-その内容が必ずしも元データに基づいているとは限りません（いわゆるハルシネーション）。
+* EASY – allows reasonable extra information
+* NORMAL – evaluates mainly based on the resume
+* HARD – strictly resume-only evaluation
 
-このプロジェクトでは次のような仕組みを試しています。
+---
 
-1. 履歴書テキストを読み込む  
-2. ベクトル検索により関連部分を取得する  
-3. ローカルLLMで回答を生成する  
-4. 生成された回答と履歴書内容の類似度を計算する  
-5. 履歴書から逸脱している回答を検出する  
+## Run the project
 
-つまり、
+Install dependencies:
 
-### **「履歴書に基づいた回答を生成し、その妥当性を確認する」**
+```
+pip install -r requirements.txt
+```
 
-というシンプルなアイデアです。
+Run a local model with Ollama:
 
-この仕組みは面接回答だけでなく、次のような用途にも応用できます。
+```
+ollama run phi3
+```
 
-- 法律文書の質問応答  
-- 医療記録のサポートAI  
-- 個人ナレッジベース  
-- データに基づいたAIエージェント  
+Start the interview engine:
 
-小さなプロジェクトですが、  
-生成AIを元データに結びつける方法を探る試みです。
+```
+python interview_engine.py
+```
+
+---
+
+## Output
+
+Each interview session generates a structured log file:
+
+```
+interview_log_YYYYMMDD_HHMMSS.ndjson
+```
+
+Each entry contains:
+
+* question
+* user answer
+* retrieved resume context
+* AI score
+* feedback
+* deviation detection
+
+---
+
+## Project Goal
+
+This project experiments with a simple AI reliability layer:
+
+LLM generation + retrieval grounding + deviation detection.
+
+Instead of relying purely on the model, the system checks whether answers remain consistent with source data.
 
 ---
 
 ## License
-MIT
+
+MIT License
